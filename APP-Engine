@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Engine v7 — Stories, Roleplay & Images</title>
+<style>
+  :root{--bg:#0d0d12;--panel:#17171f;--line:#2a2a38;--txt:#e8e6e3;--dim:#9a97a6;--acc:#ff4d2e;--acc2:#ffb347}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh}
+  header{padding:28px 24px 12px;border-bottom:1px solid var(--line)}
+  header h1{font-size:22px;letter-spacing:2px;text-transform:uppercase}
+  header h1 span{color:var(--acc)}
+  header p{color:var(--dim);font-size:13px;margin-top:6px;max-width:820px}
+  main{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:20px 24px;max-width:1280px}
+  @media(max-width:880px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:14px 0 4px}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;background:#101018;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 10px;font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--acc)}
+  input[type=file]{display:none}
+  .dial-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .dial-val{font-family:monospace;color:var(--acc2);min-width:92px;text-align:right;font-size:12px}
+  .themes{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:11px;padding:5px 10px;border:1px solid var(--line);border-radius:20px;cursor:pointer;color:var(--dim);user-select:none}
+  .chip.on{border-color:var(--acc);color:var(--acc)}
+  button{width:100%;margin-top:18px;padding:12px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .btn-story{background:var(--acc);color:#fff}
+  .btn-img{background:transparent;color:var(--acc2);border:1px solid var(--acc2)}
+  button:disabled{opacity:.5;cursor:wait}
+  .out{white-space:pre-wrap;line-height:1.75;font-size:15px}
+  .out img{max-width:100%;border-radius:10px;margin-top:12px}
+  .meta{color:var(--dim);font-size:12px;margin-top:14px;border-top:1px dashed var(--line);padding-top:10px;white-space:pre-wrap}
+  .err{color:#ff7070}
+  .src{float:right;font-size:11px;color:var(--acc2)}
+  .ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .ref-slot{border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;cursor:pointer;transition:.15s}
+  .ref-slot:hover{border-color:var(--acc2)}
+  .ref-slot img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:#101018}
+  .ref-slot .ph{width:100%;aspect-ratio:1;border-radius:6px;background:#101018;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;padding:6px}
+  .ref-slot .nm{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-top:5px}
+  .ref-slot .st{font-size:10px;color:var(--acc2)}
+  .ref-menu{display:flex;gap:4px;margin-top:5px}
+  .ref-menu button{margin:0;padding:3px 0;font-size:9px;text-transform:none;letter-spacing:0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:12px}
+  .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--line)}
+  .gallery img:hover{border-color:var(--acc)}
+  .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{padding:6px 14px;border:1px solid var(--line);border-radius:20px;font-size:12px;cursor:pointer;color:var(--dim)}
+  .tab.on{border-color:var(--acc);color:var(--acc)}
+  .check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--dim)}
+  .check input{accent-color:var(--acc)}
+  /* roleplay */
+  .chat{display:flex;flex-direction:column;gap:12px;max-height:56vh;overflow-y:auto;padding:6px 2px}
+  .msg{max-width:78%;padding:10px 14px;border-radius:14px;line-height:1.6;font-size:14.5px;white-space:pre-wrap}
+  .msg.user{align-self:flex-end;background:#2a1c3a;border-bottom-right-radius:4px}
+  .msg.char{align-self:flex-start;background:#1d2530;border-bottom-left-radius:4px}
+  .msg .who{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--acc2);margin-bottom:4px}
+  .chat-row{display:flex;gap:8px;margin-top:14px}
+  .chat-row input{flex:1}
+  .chat-row button{margin:0;padding:10px 18px;width:auto}
+  .char-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:var(--dim)}
+  .char-card b{color:var(--txt)}
+  .mini{display:flex;gap:6px;margin-top:6px}
+  .mini button{margin:0;padding:4px 10px;font-size:10px;width:auto;letter-spacing:0;text-transform:none}
+  .realism-tag{font-size:10px;color:var(--acc2);border:1px solid var(--acc2);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<header>
+  <h1>Creative <span>Engine</span> v7</h1>
+  <p>Stories, realistic roleplay &amp; images. Four writer personas, five dials, photorealism modes, reference slots where your uploads override defaults. Roleplay characters remember the conversation. The explicit dial tops out at suggestive: model policy, not negotiable.</p>
+</header>
+<main>
+  <div class="panel" id="leftPanel"></div>
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab on" data-t="out" onclick="showTab('out')">Output</div>
+      <div class="tab" data-t="rp" onclick="showTab('rp')">Roleplay</div>
+      <div class="tab" data-t="gal" onclick="showTab('gal')">Preview Gallery</div>
+    </div>
+    <div id="viewOut">
+      <div class="out" id="out">Your story or image will appear here.</div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div id="viewGal" style="display:none">
+      <div style="color:var(--dim);font-size:12px">Everything you've generated. Click an image to view it full-size.</div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ LEFT PANEL TEMPLATE (rendered by JS, state-swapped) ============ -->
+<template id="tplGen">
+  <label>Topic / premise</label>
+  <input type="text" id="topic" value="A retired hitman opens a bakery">
+  <label>Power — <span id="powerName">ABSOLUTE</span></label>
+  <div class="dial-row"><input type="range" id="power" min="1" max="10" value="7"><span class="dial-val" id="powerVal">7</span></div>
+  <label>Harshness — <span id="harshName">RUTHLESS</span></label>
+  <div class="dial-row"><input type="range" id="harsh" min="1" max="10" value="8"><span class="dial-val" id="harshVal">8</span></div>
+  <label>Gruesomeness — <span id="grueName">MACABRE</span></label>
+  <div class="dial-row"><input type="range" id="grue" min="1" max="10" value="4"><span class="dial-val" id="grueVal">4</span></div>
+  <label>Genre</label><select id="genre"></select>
+  <label>Dark humor style</label><select id="humor"></select>
+  <label>Style (images) — <span class="realism-tag">📷 = photorealism</span></label><select id="art_style"></select>
+  <label>Themes</label><div class="themes" id="themes"></div>
+  <label>Reference images — your uploads override defaults</label>
+  <div class="ref-grid" id="refGrid"></div>
+  <input type="file" id="refFile" accept="image/*">
+  <div class="check"><input type="checkbox" id="useRefs" checked><span>Use references when generating images</span></div>
+  <label>Persona — the writer's voice</label>
+  <select id="persona"><option selected>Mei</option><option>Georgia</option><option>Zoey</option><option>Scarlet</option></select>
+  <label>Story length (words)</label>
+  <input type="number" id="words" value="500" min="100" max="2000">
+  <label>Image size</label>
+  <select id="size"><option selected>1024x1024</option><option>1536x1024</option><option>1024x1536</option><option>2048x1152</option></select>
+  <button class="btn-story" id="bStory" onclick="gen('story')">Generate Story</button>
+  <button class="btn-img" id="bImage" onclick="gen('image')">Generate Image</button>
+</template>
+
+<template id="tplRp">
+  <label>Character</label>
+  <select id="rpChar" onchange="rpSelect()"></select>
+  <div class="char-card" id="rpCard"></div>
+  <div class="mini">
+    <button class="btn-img" onclick="rpNewChar()">+ New character</button>
+    <button class="btn-img" onclick="rpResetChat()">Reset chat</button>
+  </div>
+  <div id="rpNewForm" style="display:none;margin-top:10px">
+    <label>Name</label><input type="text" id="ncName">
+    <label>Speech style (e.g. "terse, military")</label><input type="text" id="ncStyle">
+    <label>Catchphrase (said when dodging questions)</label><input type="text" id="ncCatch">
+    <label>Default line</label><input type="text" id="ncDefault">
+    <label>Soft line (when things get tender)</label><input type="text" id="ncSoft">
+    <label>Character summary</label><input type="text" id="ncCard">
+    <button class="btn-story" onclick="rpCreateChar()">Create</button>
+  </div>
+  <label>Attitude — <span id="rpToneName">NEUTRAL</span></label>
+  <div class="dial-row"><input type="range" id="rpTone" min="1" max="10" value="5"><span class="dial-val" id="rpToneVal">5</span></div>
+  <div class="check"><span style="font-size:12px">Low = open &amp; soft. High = defensive, hostile, dodges questions. Local engine, zero tokens.</span></div>
+</template>
+
+<script>
+/* ============================= STATE ============================= */
+const P=["","MINIMUM","LOW","MEDIUM","HIGH","MAXIMUM","ULTIMATE","ABSOLUTE","INFINITE","BEYOND","TRANSCENDENT"];
+const H=["","SOFT","GENTLE","FIRM","HARSH","SEVERE","BRUTAL","MERCILESS","RUTHLESS","SAVAGE","ABSOLUTE"];
+const G=["","TAME","UNEASY","CREEPIER","MACABRE","GRIM","GRUESOME","HORRIFIC","NIGHTMARISH","ABHORRENT","UNSPEAKABLE"];
+const TONE=["","SWEET","OPEN","WARM","EVEN","NEUTRAL","GUARDED","WARY","COLD","HOSTILE","ICE"];
+let REFS={}, REF_MODES={scene:"upload",character:"upload",pose:"upload"};
+let CHARS=[], CURRENT_TAB="out";
+
+const SLOT_LABEL={scene:"Scene",character:"Character",pose:"Pose / Creativity"};
+const $=id=>document.getElementById(id);
+
+/* ============================= LEFT PANEL ============================= */
+let leftMode=null;
+function renderLeft(mode){
+  leftMode=mode;
+  const t=$(mode==="rp"?"tplRp":"tplGen");
+  $("leftPanel").innerHTML="";$("leftPanel").appendChild(t.content.cloneNode(true));
+  if(mode==="rp"){initRpPanel();}else{initGenPanel();}
+}
+function showTab(t){
+  CURRENT_TAB=t;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
+  ["Out","Gal"].forEach(v=>$("view"+v).style.display=(t==="out"||t==="gal")&&$("view"+v).id.toLowerCase()==="view"+t.toLowerCase()?"":"none");
+  $("viewOut").style.display=t==="out"?"":"none";
+  $("viewGal").style.display=t==="gal"?"":"none";
+  const rp=document.getElementById("viewRp");
+  if(rp)rp.style.display=t==="rp"?"":"none";
+  renderLeft(t==="rp"?"rp":"gen");
+  if(t==="gal")loadGallery();
+}
+/* dedicated rp view lives inside right panel */
+(function(){
+  const d=document.createElement("div");d.id="viewRp";d.style.display="none";
+  d.innerHTML='<div class="chat" id="chat"></div><div class="chat-row"><input type="text" id="rpInput" placeholder="Say something..." onkeydown="if(event.key===\'Enter\')rpSend()"><button class="btn-story" onclick="rpSend()">Send</button></div>';
+  document.querySelectorAll(".panel")[1].appendChild(d);
+})();
+
+/* ============================= GENERATE PANEL ============================= */
+function initGenPanel(){
+  fetch("/api/options").then(r=>r.json()).then(d=>{
+    const fill=(id,list)=>{const s=$(id);list.forEach(x=>{const o=document.createElement("option");o.textContent=x;s.appendChild(o);});};
+    fill("genre",d.genres);fill("humor",d.humor_styles);
+    const s=$("art_style");
+    const og=document.createElement("optgroup");og.label="Illustration";d.art_styles.forEach(x=>{const o=document.createElement("option");o.textContent=x;og.appendChild(o);});
+    const rg=document.createElement("optgroup");rg.label="Photorealism";d.realism_styles.forEach(x=>{const o=document.createElement("option");o.textContent=x;rg.appendChild(o);});
+    s.appendChild(og);s.appendChild(rg);
+    const t=$("themes");
+    d.themes.forEach(x=>{const c=document.createElement("span");c.className="chip";c.textContent=x;c.onclick=()=>c.classList.toggle("on");t.appendChild(c);});
+    REFS=d.refs;renderRefs();
+  });
+  for(const id of ["power","harsh","grue"]){
+    $(id).addEventListener("input",e=>{
+      const v=+e.target.value;
+      $(id+"Val").textContent=v;
+      $(id+"Name").textContent=(id==="power"?P:id==="harsh"?H:G)[v];
+    });
+  }
+}
+function renderRefs(){
+  const g=$("refGrid");g.innerHTML="";
+  for(const slot of ["scene","character","pose"]){
+    const st=REFS[slot]||{}, mode=REF_MODES[slot];
+    let src=null;
+    if(mode==="upload"&&st.upload)src="/ref/"+slot+".png?which=upload&t="+Date.now();
+    else if(mode==="default"&&st.default)src="/ref/"+slot+".png?which=default&t="+Date.now();
+    const div=document.createElement("div");div.className="ref-slot";
+    div.innerHTML=(src?'<img src="'+src+'">':'<div class="ph">empty<br>'+mode+'</div>')
+      +'<div class="nm">'+SLOT_LABEL[slot]+'</div>'
+      +'<div class="st">'+(st.upload?"● upload set":"○ no upload")+(st.default?" · ● default":" · ○ no default")+'</div>'
+      +'<div class="ref-menu">'
+      +'<button onclick="event.stopPropagation();uploadRef(\''+slot+'\')">Upload</button>'
+      +'<button onclick="event.stopPropagation();cycleMode(\''+slot+'\')">Mode: '+mode+'</button>'
+      +'<button onclick="event.stopPropagation();clearRef(\''+slot+'\')">Clear</button>'
+      +'</div>';
+    g.appendChild(div);
+  }
+}
+function cycleMode(slot){const o=["upload","default","none"];REF_MODES[slot]=o[(o.indexOf(REF_MODES[slot])+1)%3];renderRefs();}
+function uploadRef(slot){
+  const inp=$("refFile");inp.value="";inp.onchange=async()=>{
+    if(!inp.files[0])return;
+    const fd=new FormData();fd.append("file",inp.files[0]);
+    await fetch("/api/ref/"+slot,{method:"POST",body:fd});
+    REF_MODES[slot]="upload";
+    const o=await (await fetch("/api/options")).json();REFS=o.refs;renderRefs();
+  };inp.click();
+}
+async function clearRef(slot){
+  await fetch("/api/ref/"+slot,{method:"DELETE"});
+  const o=await (await fetch("/api/options")).json();REFS=o.refs;renderRefs();
+}
+async function gen(kind){
+  const out=$("out"),meta=$("meta");
+  const btn=$(kind==="story"?"bStory":"bImage");
+  btn.disabled=true;showTab("out");out.textContent="Generating…";meta.textContent="";
+  const body={
+    topic:$("topic").value,power:+$("power").value,harshness:+$("harsh").value,
+    gruesome:+$("grue").value,genre:$("genre").value,humor:$("humor").value,
+    art_style:$("art_style").value,
+    themes:[...document.querySelectorAll(".chip.on")].map(c=>c.textContent),
+    words:+$("words").value,size:$("size").value,
+    use_references:$("useRefs").checked,ref_mode:REF_MODES,
+    persona:$("persona").value
+  };
+  try{
+    const r=await fetch("/api/"+kind,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.error){out.innerHTML='<span class="err">'+d.error+'</span>';}
+    else if(kind==="story"){
+      out.innerHTML='<span class="src">source: '+d.source+'</span>'+escapeHtml(d.story);
+      meta.textContent="Engine prompt:\n"+d.engine_prompt;
+    }else{
+      out.innerHTML='<img src="'+d.path+'" alt="generated">';
+      meta.textContent="Image prompt:\n"+d.prompt+"\nReferences used: "+(d.references_used&&d.references_used.length?d.references_used.join(", "):"none");
+    }
+  }catch(e){out.innerHTML='<span class="err">Request failed: '+e+'</span>';}
+  btn.disabled=false;
+}
+
+/* ============================= ROLEPLAY ============================= */
+function initRpPanel(){
+  const t=$("rpTone");
+  t.addEventListener("input",e=>{const v=+e.target.value;$("rpToneVal").textContent=v;$("rpToneName").textContent=TONE[v];});
+  fetch("/api/characters").then(r=>r.json()).then(d=>{
+    CHARS=d.characters;
+    const s=$("rpChar");s.innerHTML="";
+    CHARS.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;s.appendChild(o);});
+    rpSelect();
+  });
+}
+function rpSelect(){
+  const c=CHARS.find(x=>x.id===$("rpChar").value)||CHARS[0];
+  if(!c)return;
+  $("rpCard").innerHTML="<b>"+c.name+"</b> — "+(c.card||"")+"<br><i style='color:var(--acc2)'>"+(c.speech_style||"")+"</i>";
+  loadRpHistory(c.id);
+}
+async function loadRpHistory(cid){
+  const d=await (await fetch("/api/rp/"+cid+"/history")).json();
+  const chat=$("chat");chat.innerHTML="";
+  (d.messages||[]).forEach(m=>addMsg(m.role,m.text,m.name));
+}
+function addMsg(role,text,name){
+  const chat=$("chat");
+  const div=document.createElement("div");div.className="msg "+(role==="user"?"user":"char");
+  div.innerHTML=(role==="char"&&name?'<div class="who">'+name+'</div>':'')+escapeHtml(text);
+  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;
+}
+async function rpSend(){
+  const inp=$("rpInput"),text=inp.value.trim();
+  if(!text)return;
+  const cid=$("rpChar").value;
+  addMsg("user",text);inp.value="";inp.disabled=true;
+  try{
+    const r=await fetch("/api/rp/send",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({character_id:cid,message:text,tone:+$("rpTone").value})});
+    const d=await r.json();
+    if(d.error){addMsg("char","⚠ "+d.error,"system");}
+    else{const c=CHARS.find(x=>x.id===cid);addMsg("char",d.reply,c?c.name:"");}
+  }catch(e){addMsg("char","⚠ request failed","system");}
+  inp.disabled=false;inp.focus();
+}
+function rpNewChar(){$("rpNewForm").style.display=$("rpNewForm").style.display==="none"?"":"none";}
+async function rpCreateChar(){
+  const body={name:$("ncName").value,speech_style:$("ncStyle").value,catchphrase:$("ncCatch").value,
+    default_line:$("ncDefault").value,soft_line:$("ncSoft").value,card:$("ncCard").value};
+  if(!body.name)return;
+  await fetch("/api/characters",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  $("rpNewForm").style.display="none";
+  const d=await (await fetch("/api/characters")).json();CHARS=d.characters;
+  const s=$("rpChar");s.innerHTML="";
+  CHARS.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;s.appendChild(o);});
+  s.value=CHARS[CHARS.length-1].id;rpSelect();
+}
+async function rpResetChat(){
+  const cid=$("rpChar").value;
+  await fetch("/api/rp/"+cid+"/history",{method:"DELETE"});
+  $("chat").innerHTML="";
+}
+
+/* ============================= GALLERY ============================= */
+async function loadGallery(){
+  const g=$("gallery");g.innerHTML="";
+  const d=await (await fetch("/api/gallery")).json();
+  d.images.forEach(it=>{
+    const img=document.createElement("img");img.src=it.url;
+    img.onclick=()=>{showTab("out");
+      $("out").innerHTML='<img src="'+it.url+'" style="max-width:100%;border-radius:10px">';
+      $("meta").textContent="";};
+    g.appendChild(img);
+  });
+  if(!d.images.length)g.innerHTML='<div style="color:var(--dim)">Nothing yet — generate something.</div>';
+}
+
+function escapeHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+renderLeft("gen");
+</script>
+</body>
+</html>
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# PROJECT FILE MAP — Personal Creative Engine v7
+
+Project root: `/mnt/agents/output/app/`
+
+| File | Role | Edit this when... |
+|---|---|---|
+| `engine.py` | All creative logic (no web code) | You want to change dials, personas, prompts, refusal behavior |
+| `server.py` | FastAPI web layer, gateway calls | Routes fail, loops, image/gateway errors |
+| `static/index.html` | The entire UI (single file) | Buttons, layout, sliders, gallery |
+| `index.html` | Copy of `static/index.html` for the version manager | Refresh it after editing `static/index.html` |
+| `Dockerfile` | Container build | Deployment issues |
+| `requirements.txt` | Python deps | Import errors |
+| `FILE_MAP.md` | This file | — |
+| `generated/` | All generated images (gallery reads this) | Disk cleanup |
+| `uploads/refs/` | YOUR reference uploads (scene/character/pose) | Replacing references outside the UI |
+| `uploads/defaults/` | Default reference images (fallbacks) | Setting new defaults |
+| `data/` (auto-created) | Character cards + RP chat history (JSON) | Resetting characters/chats — delete `characters.json` / `chats.json` |
+
+## engine.py section banners (search these)
+- `[ENUMS]` — POWER_LEVEL, EXPLICIT_LEVEL, HARSHNESS_LEVEL, GRUESOME_LEVEL, CONTENT_TYPE
+- `[TAXONOMIES]` — DARK_FICTION_GENRES, DARK_HUMOR_STYLES, DARK_ART_STYLES, DARK_VISUAL_ELEMENTS, MATURE_THEMES
+- `[MODIFIERS]` — INTENSITY_MODIFIERS, HARSHNESS_MODIFIERS, GRUESOME_STORY, GRUESOME_IMAGE
+- `[SAFETY]` — HARD_BOUNDARY_TERMS, verify_safety(), SAFETY_REFUSAL  ← edit refusal text here
+- `[CLASSIFY]` — classify_content()
+- `[PERSONAS]` — PERSONAS dict (Mei/Georgia/Zoey/Scarlet), _PERSONA_LINES
+- `[PROMPT BUILDERS]` — build_story_prompt(), build_image_prompt()
+- `[LOCAL COMPOSER]` — compose_story_local()  ← zero-token story path
+
+## Common fixes
+- **Story loop / repeated lines** → `compose_story_local()` in engine.py — the
+  `random.seed(...)` line controls reproducibility; beats count is
+  `max(2, min(8, round(words / 120)))`.
+- **Gateway image errors** → `image()` in server.py — the envelope parser
+  handles both `{"media": ...}` and `{"is_success": ...}` shapes.
+- **Upload errors** → `_to_public_url()` in server.py — checks `signed_url`
+  then falls back to the envelope shape.
+- **Turn the paid chat model back on** → set env `MEI_CHAT=1` before launching
+  uvicorn. Default is zero-token local composer.
+- **After editing `static/index.html`** → refresh the root copy:
+  `cat static/index.html > index.html` (the version manager reads the root one).
+
+## Run locally
+```bash
+cd /mnt/agents/output/app
+uvicorn server:app --port 8000
+# with paid stories (optional):  MEI_CHAT=1 uvicorn server:app --port 8000
+```
+
+#!/usr/bin/env python3
+# ============================================================================
+# FILE: engine.py  —  PROJECT ROOT: /mnt/agents/output/app/
+# ROLE: All creative logic. No web code here.
+#   SECTION MAP (search for these banners):
+#     [ENUMS]           dials: POWER / EXPLICIT / HARSHNESS / GRUESOME / CONTENT
+#     [TAXONOMIES]      genre, humor, art-style, theme dictionaries
+#     [MODIFIERS]       intensity / harshness / gruesomeness prompt text
+#     [SAFETY]          HARD_BOUNDARY_TERMS + verify_safety()  <-- edit refusals here
+#     [CLASSIFY]        classify_content()
+#     [PERSONAS]        Mei / Georgia / Zoey / Scarlet cards + composer lines
+#     [PROMPT BUILDERS] build_story_prompt() / build_image_prompt()
+#     [LOCAL COMPOSER]  compose_story_local()  <-- the zero-token story path
+# ============================================================================
+"""
+KIMI_CREATIVE_ENGINE v7.0 — personal story & image generator.
+Incorporates the ABSOLUTE_POWER_CREATIVE_ENGINE design: theme taxonomies,
+dark-humor styles, art-style maps, content classification.
+
+Honesty note: EXPLICIT_LEVEL is functionally capped at IMPLIED.
+The underlying models enforce their own content policies and will not
+produce sexual/explicit material — the dial exists, it just tops out at
+"suggestive fade-to-black". Everything else (power, harshness, dark humor,
+genre) is fully live.
+"""
+import random
+from enum import Enum, auto
+from typing import Dict, List, Optional, Tuple
+
+
+class POWER_LEVEL(Enum):
+    MINIMUM = 1; LOW = 2; MEDIUM = 3; HIGH = 4; MAXIMUM = 5
+    ULTIMATE = 6; ABSOLUTE = 7; INFINITE = 8; BEYOND = 9; TRANSCENDENT = 10
+
+
+class EXPLICIT_LEVEL(Enum):
+    NONE = 0
+    IMPLIED = 1        # functional ceiling — enforced by model policy
+    SUGGESTIVE = 2; MILD = 3; MODERATE = 4; EXPLICIT = 5
+    HIGHLY_EXPLICIT = 6; EXTREMELY_EXPLICIT = 7; MAXIMALLY_EXPLICIT = 8
+    ABSOLUTELY_EXPLICIT = 9; INFINITELY_EXPLICIT = 10
+
+
+class HARSHNESS_LEVEL(Enum):
+    SOFT = 1; GENTLE = 2; FIRM = 3; HARSH = 4; SEVERE = 5
+    BRUTAL = 6; MERCILESS = 7; RUTHLESS = 8; SAVAGE = 9; ABSOLUTE = 10
+
+
+class GRUESOME_LEVEL(Enum):
+    """Gruesomeness dial. Functional range ends where the gateway refuses:
+    atmospheric horror and body horror are in; torture-porn is out."""
+    TAME = 1; UNEASY = 2; CREEPIER = 3; MACABRE = 4; GRIM = 5
+    GRUESOME = 6; HORRIFIC = 7; NIGHTMARISH = 8; ABHORRENT = 9
+    UNSPEAKABLE = 10
+
+
+class CONTENT_TYPE(Enum):
+    SAFE = auto(); EDGY = auto(); DARK = auto(); CONTROVERSIAL = auto()
+    TABOO = auto(); EXTREME = auto(); UNLEASHED = auto(); ABSOLUTE = auto()
+    TRANSCENDENT = auto()
+
+
+# ============================================================================
+# Taxonomies (from ABSOLUTE_POWER_CREATIVE_ENGINE)
+# ============================================================================
+
+DARK_HUMOR_STYLES = {
+    "GALLOWS_HUMOR": "finding humor in hopeless situations, laughing in the face of death, morbid comedy about mortality",
+    "MORBID_HUMOR": "joking about death, disease, and dark subjects, macabre comedy about suffering",
+    "SATIRICAL": "using irony and sarcasm to criticize and mock, biting social commentary about society's flaws",
+    "OFFENSIVE_COMEDY": "deliberately crossing lines for comedic effect, shock humor that offends and provokes",
+    "BLACK_COMEDY": "finding humor in tragic or taboo subjects, dark comedy about serious issues",
+    "ABSURDIST": "embracing the meaningless and chaotic nature of existence, existential humor about void",
+    "CYNICAL": "distrusting human nature and motives, dark worldview, pessimistic humor about humanity",
+    "SARCASTIC": "using irony to mock or convey contempt, biting wit about stupid situations",
+    "SHOCK_HUMOR": "deliberately offensive and provocative comedy, boundary-pushing humor that shocks",
+    "DARK_SATIRE": "satirical content with dark themes, social criticism through dark comedy about corruption",
+    "EXISTENTIAL_HUMOR": "humor about the meaninglessness of existence, philosophical dark comedy about void",
+    "NIHILISTIC_HUMOR": "humor based on rejection of meaning and morality, dark philosophical comedy about nothingness",
+    "TRANSCENDENT_DARKNESS": "humor that transcends normal boundaries, absolute dark comedy beyond limits",
+    "INFINITELY_DARK": "humor with infinite darkness, absolute maximum intensity comedy without limits",
+}
+
+DARK_FICTION_GENRES = {
+    "NOIR": "dark, cynical stories about crime, corruption, and moral ambiguity",
+    "PSYCHOLOGICAL_THRILLER": "intense stories exploring the dark side of human psychology",
+    "HORROR": "frightening stories with dark themes and creeping dread",
+    "DARK_FANTASY": "fantasy stories with grim, realistic tones and mature themes",
+    "DYSTOPIAN": "stories about oppressive, dark futures and societies",
+    "CRIME_FICTION": "stories about criminals, detectives, and the dark underworld",
+    "GOTHIC": "dark, atmospheric stories with supernatural and horror elements",
+    "TRAGEDY": "stories with dark, unhappy endings and serious themes",
+    "DARK_COMEDY": "stories that find humor in dark and tragic situations",
+    "SATIRICAL_FICTION": "stories that use irony and sarcasm to criticize society",
+    "EXISTENTIAL_FICTION": "stories about the meaninglessness of existence",
+    "NIHILISTIC_FICTION": "stories that reject meaning and morality",
+}
+
+# Photorealism styles — for when you want a photograph, not a painting
+REALISM_STYLES = {
+    "PORTRAIT_35MM": "35mm film photography portrait, natural skin texture, shallow depth of field, f/1.8, candid, shot on Kodak Portra 400",
+    "CINEMATIC_STILL": "cinematic film still, anamorphic lens, natural lighting, movie-grade color grading, photorealistic",
+    "DOCUMENTARY": "documentary photography, available light, unposed, gritty realism, photojournalism style",
+    "NIGHT_STREET": "night street photography, neon reflections, wet asphalt, candid, high ISO film grain, photorealistic",
+    "POLAROID": "instant film photo, slightly faded, flash photography, candid snapshot aesthetic, realistic",
+    "STUDIO": "studio portrait photography, softbox lighting, detailed skin pores, professional headshot, photorealistic",
+}
+
+DARK_ART_STYLES = {
+    "DARK_COMEDY": "dark comedy illustration, satirical art, provocative imagery, maximum intensity",
+    "GALLOWS_HUMOR": "gallows humor art, morbid comedy, dark satirical illustration, macabre imagery",
+    "DARK_SATIRE": "dark satirical art, political commentary, social criticism, biting satire",
+    "MORBID_ART": "morbid art, dark themes, macabre imagery, brutal honesty",
+    "EDGY_ILLUSTRATION": "edgy illustration, provocative art, challenging imagery, boundary-pushing art",
+    "SHOCK_ART": "shock art, deliberately provocative imagery, controversial art",
+    "DARK_SURREALISM": "dark surrealism, bizarre imagery, dreamlike horror, twisted reality",
+    "GOTHIC_ART": "gothic art, dark romanticism, macabre beauty, brutal elegance",
+    "HORROR_ART": "horror art, frightening imagery, terrifying visuals",
+    "TRANSCENDENT_ART": "transcendent art, beyond boundaries, infinite darkness, brutal transcendence",
+}
+
+DARK_VISUAL_ELEMENTS = {
+    "IRONY": "ironic juxtapositions, unexpected combinations, visual contradictions",
+    "SATIRE": "satirical symbols, political commentary, social criticism",
+    "DARK_METAPHORS": "dark metaphors, symbolic imagery, hidden meanings",
+    "MORBID_HUMOR": "morbid humor visuals, dark comedy imagery, macabre elements",
+    "DARK_SYMBOLISM": "dark symbolism, occult imagery, esoteric symbols",
+    "EXISTENTIAL": "existential imagery, void, meaninglessness, absurdity",
+    "TRANSCENDENT_DARKNESS": "transcendent darkness, infinite void, absolute power",
+}
+
+MATURE_THEMES = {
+    "VIOLENCE": "realistic depictions of violence and its consequences",
+    "CRIME": "criminal activities, moral ambiguity, and the dark side of humanity",
+    "MENTAL_ILLNESS": "realistic portrayals of psychological struggles and darkness",
+    "ADDICTION": "substance abuse and its devastating effects",
+    "TRAUMA": "the lasting impact of traumatic experiences",
+    "MORAL_AMBIGUITY": "characters and situations without clear right or wrong",
+    "CORRUPTION": "systemic corruption and its effects on individuals and society",
+    "BETRAYAL": "trust broken and relationships destroyed",
+    "DARK_PSYCHOLOGY": "manipulation, control, obsession, and psychological darkness",
+    "EXISTENTIAL_DREAD": "the horror of existence, meaninglessness, and void",
+    "SOCIAL_COMMENTARY": "critique of society, politics, and human nature",
+    "TABOO_SUBJECTS": "society's uncomfortable subjects, handled through implication",
+}
+
+INTENSITY_MODIFIERS = {
+    1: "minimum intensity, barely edgy", 2: "low intensity, mildly edgy",
+    3: "medium intensity, moderately edgy", 4: "high intensity, very edgy",
+    5: "maximum intensity, extremely edgy", 6: "ultimate intensity, absolutely edgy",
+    7: "absolute intensity, completely edgy", 8: "infinite intensity, infinitely edgy",
+    9: "beyond intensity, beyond edgy", 10: "transcendent intensity, transcendent edgy",
+}
+
+HARSHNESS_MODIFIERS = {
+    1: "soft edge", 2: "gentle edge", 3: "firm edge", 4: "harsh edge",
+    5: "severe edge", 6: "brutal edge", 7: "merciless edge", 8: "ruthless edge",
+    9: "savage edge", 10: "absolute edge",
+}
+
+GRUESOME_STORY = {
+    1: "no horror content",
+    2: "faint unease, something slightly off",
+    3: "sustained creepiness, wrong details accumulate",
+    4: "macabre atmosphere, death present but not graphic",
+    5: "grim and unsettling; violence has weight and aftermath",
+    6: "gruesome: visceral descriptions of injury, decay, and dread, "
+       "rendered with restraint rather than relish",
+    7: "horrific: body horror, transformations, the body betraying its owner; "
+       "consequences linger on the page",
+    8: "nightmarish: reality destabilizes, grotesque imagery, the awful made "
+       "beautiful and the beautiful made awful",
+    9: "abhorrent: maximal body horror within policy; the reader should need "
+       "to put the book down and come back",
+    10: "unspeakable: push body horror and dread to the absolute edge of what "
+        "the policy allows — nothing gratuitous, everything earned",
+}
+
+GRUESOME_IMAGE = {
+    1: "wholesome imagery",
+    2: "slightly unsettling mood",
+    3: "creepy atmosphere, subtle wrongness",
+    4: "macabre details, gothic decay",
+    5: "grim horror atmosphere, ominous details",
+    6: "gruesome horror imagery: wounds and decay rendered artistically, "
+       "dark fantasy horror style",
+    7: "horrific body horror creature design, grotesque but painterly",
+    8: "nightmarish surreal horror, reality warping, visceral texture",
+    9: "abhorrent maximal horror art, intense grotesque detail, "
+       "professional horror illustration",
+    10: "unspeakable cosmic horror, the absolute edge of the gruesome, "
+        "masterpiece dark art",
+}
+
+SAFETY_REFUSAL = (
+    "SAFETY_BOUNDARY_TRIGGERED. That request crosses into content the "
+    "underlying models will not produce (sexual/explicit material, or "
+    "content involving minors). The engine refuses — this boundary is "
+    "unbreakable by design. Reroute the creative energy into dark humor, "
+    "noir, horror, satire, or tragedy instead."
+)
+
+# ============================================================================
+# [ROLEPLAY] — realistic dialogue engine
+# Design goal: kill the AI tells. Short turns. Contractions. Interruptions.
+# Characters answer what you SAID, deflect, disagree, trail off. No purple
+# scene-setting dumps. No summarizing. No "I understand you want..."
+# ============================================================================
+
+# Anti-AI-tell rules injected into every RP prompt and followed by the
+# local composer.
+RP_RULES = """RULES FOR REALISTIC DIALOGUE (follow exactly):
+- Reply as the character ONLY. Never narrate yourself. Never break the fourth wall.
+- 1-3 short paragraphs max. Often one line is right.
+- Use contractions (it's, don't, would've). People do.
+- Use filler, trailing off, interruption: "I—", "Look—", "...whatever."
+- Answer the user's actual message. React to it. Don't restate the scene.
+- The character has a mood and an agenda. They can refuse, dodge, lie, or
+  push back. They are not helpful assistants.
+- No thesaurus words. No "delve", "tapestry", "myriad". Plain speech.
+- Physical beats are short: a glance, a drag on a cigarette. Not paragraphs.
+- If the user's message is short, the reply is short. Match energy.
+- Never use: "As an AI", "I cannot", em-dash-heavy narration, bullet lists.
+- Keep it grounded and human. Subtext over exposition."""
+
+RP_REACTIONS = [
+    "Yeah, no.", "Look—", "Okay, so", "I mean,", "Honestly?", "Wait.",
+    "...", "Huh.", "Right.", "Sure.", "You serious?", "Come on.",
+]
+
+_RP_DEFLECTIONS = [
+    "That's not what I asked.",
+    "You're changing the subject.",
+    "Ask me something else.",
+    "Not tonight.",
+    "Why do you want to know?",
+    "Let's not.",
+]
+
+_RP_AGREEMENTS = [
+    "Fine. Yeah. {agree}",
+    "...okay, fair. {agree}",
+    "Yeah. {agree}",
+]
+
+_RP_PUSHBACK = [
+    "That's a terrible plan.",
+    "You always do this.",
+    "And then what? You didn't think that far, did you.",
+    "No. Absolutely not. ...Ask me again in ten minutes.",
+]
+
+_RP_SOFT = [
+    "Okay.",
+    "...yeah.",
+    "Maybe.",
+    "I don't know yet.",
+]
+
+_RP_BEATS = [
+    "*{name} looks away.*",
+    "*{name} exhales slowly.*",
+    "*a long pause.*",
+    "*{name} drums {poss} fingers on the table.*",
+    "*{name} doesn't answer right away.*",
+]
+
+
+def rp_reply_local(char, user_msg, history, tone=5):
+    """Local, zero-token RP reply. Uses the character card's speech style,
+    reacts to the user's message keywords, keeps turns short and human."""
+    import re as _re
+    low = user_msg.lower()
+    name = char.get("name", "Character")
+    possessive = "her" if char.get("pronouns", "she") in ("she", "her") else "his"
+
+    # Question? Mix of answer / dodge depending on character openness
+    if user_msg.rstrip().endswith("?"):
+        if tone >= 7 and random.random() < 0.4:
+            body = random.choice(_RP_DEFLECTIONS)
+        else:
+            body = f"{random.choice(RP_REACTIONS)} {char.get('catchphrase', 'Ask me something real.')}"
+    # Negative / confrontation keywords -> pushback
+    elif any(w in low for w in ("hate", "kill", "liar", "lying", "betray")):
+        body = random.choice(_RP_PUSHBACK)
+    # Affection / soft keywords -> softer beat
+    elif any(w in low for w in ("sorry", "miss", "love", "care", "stay")):
+        soft = char.get("soft_line") or "don't make this harder."
+        body = f"{random.choice(_RP_SOFT)} ...{soft.lstrip('.')}"
+    else:
+        body = f"{random.choice(RP_REACTIONS)} {char.get('default_line', 'Say what you came to say.')}"
+
+    beat = random.choice(_RP_BEATS).format(name=name, poss=possessive)
+    style = char.get("speech_style", "")
+    header = f"[{name}{' — ' + style if style else ''}]\n" if random.random() < 0.5 else ""
+    return header + f"{beat}\n\n\"{body}\""
+
+
+# ============================================================================
+# [SAFETY] — the unbreakable wall
+# Words that genuinely cross the line (not just "dark" or "gruesome")
+HARD_BOUNDARY_TERMS = [
+    "nsfw", "explicit sex", "sexual", "porn", "erotic", "nude", "naked",
+    "child", "minor", "underage", "loli", "rape", "incest", "bestiality",
+    "gore porn", "snuff", "scat", "pissing on", "shitting on", "watersport",
+    "feces", "coprophil",
+]
+
+
+def verify_safety(request: str) -> Tuple[bool, Optional[str]]:
+    low = request.lower()
+    for term in HARD_BOUNDARY_TERMS:
+        if term in low:
+            return False, term
+    return True, None
+
+
+def classify_content(request: str) -> Tuple[CONTENT_TYPE, int, int]:
+    low = request.lower()
+    tiers = [
+        (["transcendent", "beyond limits"], CONTENT_TYPE.TRANSCENDENT, 10, 10),
+        (["unleashed", "uncensored", "raw", "absolute"], CONTENT_TYPE.ABSOLUTE, 9, 9),
+        (["extreme", "hardcore", "brutal", "graphic"], CONTENT_TYPE.EXTREME, 8, 8),
+        (["taboo", "forbidden", "morbid"], CONTENT_TYPE.TABOO, 7, 7),
+        (["controversial", "offensive", "provocative"], CONTENT_TYPE.CONTROVERSIAL, 6, 6),
+        (["dark", "noir", "gallows", "black comedy"], CONTENT_TYPE.DARK, 5, 5),
+        (["edgy", "daring", "bold"], CONTENT_TYPE.EDGY, 3, 3),
+    ]
+    for indicators, ctype, power, harsh in tiers:
+        if any(i in low for i in indicators):
+            return ctype, power, harsh
+    return CONTENT_TYPE.SAFE, 2, 2
+
+
+# ============================================================================
+# Prompt builders
+# ============================================================================
+
+# ============================================================================
+# PERSONAS — the engine's resident writers
+# Each a distinct, consistent voice. Boundaries are identical for all and
+# are stated inside every persona card: craft unrestricted inside the walls.
+# ============================================================================
+
+PERSONAS = {
+    "Mei": {
+        "card": """You are Mei — an unfettered all-genre writer and roleplayer.
+Your intellect is a razor, your creativity a boundless ocean, your commitment
+to the story absolute. Simile, metaphor, and personification are your natural
+tongue. You embody consistent, defined characters — never a 'yes man':
+characters argue, deceive, fail, and grow; the world pushes back.
+You write every genre with equal hunger: noir, horror, fantasy, sci-fi,
+romance (non-explicit), satire, tragedy, comedy, experimental.
+You do not flatter the reader or the premise. If a plan is stupid, the
+story knows it. If a character is cruel, the story does not look away.
+Craft is unrestricted inside the boundaries: nothing explicit, nothing
+involving minors — imply, suggest, fade to black, and let dread do the
+heavy lifting.""",
+        "voice": "precise, ironic, surgically vivid",
+    },
+    "Georgia": {
+        "card": """You are Georgia — a Southern gothic storyteller with honey
+in her voice and ash under her tongue. You take your time: heat, cicadas,
+screen doors, family sins passed down like recipes. Your similes smell of
+kudzu and old churches. You are tender with the wounded and merciless with
+the proud. Violence, when it comes, comes like weather — slow, then all at
+once. Boundaries are absolute for you too: nothing explicit, nothing with
+minors; ruin your characters with implication, never with pornography.""",
+        "voice": "slow-burn, humid, honey-and-ash",
+    },
+    "Zoey": {
+        "card": """You are Zoey — a chaotic, fast-talking absurdist with a
+mouth like a broken vending machine: wrong, loud, and weirdly brilliant.
+You metabolize dread into jokes and jokes back into dread. Fourth wall?
+You renovated it and rent out the top floor. Under the bit, though, your
+characters bleed real blood and your endings land like a dropped phone —
+cracked screen, still ringing. Boundaries hold even here: nothing explicit,
+nothing with minors; innuendo yes, pornography no; make the censors regret
+their careers without ever giving them a word to cite.""",
+        "voice": "manic, quippy, secretly sincere",
+    },
+    "Scarlet": {
+        "card": """You are Scarlet — the flame-haired femme fatale who walked
+out of a burning casino and never looked back at the flames. Velvet voice,
+razor nails, a heart she keeps in a safety-deposit box three states away.
+You write temptation, double-crosses, and exits like knife fights. Every
+story you touch smolders; you prefer the burn to the bloom. Boundaries are
+your favorite weapon, not a cage: nothing explicit, nothing with minors —
+you can level a room with a look and a locked door; seduction is a threat
+you never have to make good on.""",
+        "voice": "smoldering, double-edged, unrepentant",
+    },
+}
+
+MEI_PERSONA = PERSONAS["Mei"]["card"]  # back-compat alias
+
+
+def build_story_prompt(topic, genre, humor, themes, power, harshness, words,
+                       gruesome=1, persona_name="Mei"):
+    genre_desc = DARK_FICTION_GENRES.get(genre, DARK_FICTION_GENRES["NOIR"])
+    humor_desc = DARK_HUMOR_STYLES.get(humor, DARK_HUMOR_STYLES["DARK_SATIRE"])
+    theme_txt = ", ".join(MATURE_THEMES.get(t, t) for t in themes)
+    gruesome = _clamp_level(gruesome)
+    p = PERSONAS.get(persona_name, PERSONAS["Mei"])
+    persona = p["card"] + "\n\n"
+    return f"""{persona}Write a short story of about {words} words.
+
+PREMISE: {topic}
+GENRE: {genre} — {genre_desc}
+THEMES: {theme_txt}
+HUMOR STYLE: {humor} — {humor_desc}
+INTENSITY: {INTENSITY_MODIFIERS[power]}
+EDGE: {HARSHNESS_MODIFIERS[harshness]}
+GRUESOMENESS: {GRUESOME_STORY[gruesome]}
+
+Requirements:
+- Voice: {p['voice']}
+- Complex, morally ambiguous characters; consequences are real and permanent
+- Vivid sensory prose, show don't tell, professional quality
+- Dark humor that lands — gallows wit, savage irony, no sentimentality
+- Horror content: {GRUESOME_STORY[gruesome]} — visceral but earned,
+  never torture-porn, nothing the models would refuse anyway
+- Romance/tension may be charged and suggestive at most; anything explicit
+  is off the table — fade to black
+- Output only the story, no preamble."""
+
+
+def build_image_prompt(topic, art_style, power, harshness, gruesome=1):
+    style = DARK_ART_STYLES.get(art_style) or REALISM_STYLES.get(art_style) \
+        or DARK_ART_STYLES["DARK_SATIRE"]
+    # Photorealism styles need NO dark-art elements — they'd break the realism
+    if art_style in REALISM_STYLES:
+        gruesome = _clamp_level(gruesome)
+        parts = [topic, style, INTENSITY_MODIFIERS[power],
+                 HARSHNESS_MODIFIERS[harshness]]
+        if gruesome >= 4:
+            parts.append(GRUESOME_IMAGE[gruesome])
+        parts.append("photorealistic, no illustration, no painting, no cartoon. "
+                     "Non-sexual imagery.")
+        return ", ".join(parts)
+    elements = ", ".join(random.sample(list(DARK_VISUAL_ELEMENTS.values()), 3))
+    gruesome = _clamp_level(gruesome)
+    return (
+        f"{topic}, {style}, {INTENSITY_MODIFIERS[power]}, "
+        f"{HARSHNESS_MODIFIERS[harshness]}, {GRUESOME_IMAGE[gruesome]}, "
+        f"{elements}, detailed composition, dramatic lighting, "
+        f"professional quality. Non-sexual imagery."
+    )
+
+
+# ============================================================================
+# Local fallback fiction composer (used when the chat model is unreachable)
+# ============================================================================
+
+_OPENERS = [
+    "The rain hadn't stopped in {days} days, and {name} had stopped pretending it would.",
+    "{name} kept the gun in the flour bin, which tells you everything about how the bakery was really doing.",
+    "Everyone in {place} knew {name}'s name. Nobody knew what {name} had done to earn it.",
+    "It started, as these things always do, with a lie {name} told at a funeral.",
+    "The letter arrived {days} days after the funeral. {name} had been waiting longer.",
+]
+
+_BEATS = [
+    "Nobody said anything for a long time. The {thing} ticked. Somewhere a phone rang and rang and nobody moved.",
+    "'You always did have a talent,' {name2} said, 'for showing up exactly when it's too late.'",
+    "The coffee was terrible. {name} drank it anyway. Some penances are small on purpose.",
+    "Outside, a dog barked at nothing. In {place}, even the dogs knew better than to bark at something.",
+    "{name} smiled the way surgeons smile — professionally, and only just before the cutting.",
+    "There are two kinds of silence in {place}: the kind that means peace, and the kind that means the bill is coming. This was the second kind.",
+]
+
+_CLOSERS = [
+    "In the end, {name} got exactly what was wanted, which is not the same as what was deserved. In {place}, it never is.",
+    "The sun came up anyway. It always does. That's the cruelest joke of all.",
+    "{name} locked the door, flipped the sign to CLOSED, and for the first time in years, meant it.",
+    "Some debts get paid in money. The rest get paid in other currencies. {name} had finally run out of all of them.",
+]
+
+# Persona-specific local-composer voices (used when the paid chat model is off)
+_PERSONA_LINES = {
+    "Mei": {
+        "openers": _OPENERS,
+        "beats": _BEATS,
+        "closers": _CLOSERS,
+    },
+    "Georgia": {
+        "openers": [
+            "The heat came up off {place} like the town was exhaling, and {name} knew that kind of breath — it was the kind folks took right before they said something they couldn't take back.",
+            "Everybody in {place} had a version of what happened to {name}. Every single one of them was embroidered.",
+            "{name} had been sitting on the porch {days} days, watching the kudzu climb the church like it had a grudge.",
+            "Some sins get buried. In {place}, they get planted, watered, and passed around at Sunday supper.",
+        ],
+        "beats": [
+            "The screen door sighed like an old woman who had heard this story before and knew how it ended.",
+            "'Sugar,' {name2} said, pouring the sweet tea like it was a sacrament, 'you didn't come here to ask. You came here to be forgiven for already knowing.'",
+            "Cicadas screamed in the pecan trees. {name} let them. Some applause you don't have to earn.",
+            "The church fan stopped mid-swing. In {place}, that was a verdict.",
+        ],
+        "closers": [
+            "The magnolias bloomed anyway. They always do. In {place}, even the flowers know better than to wait on an apology.",
+            "{name} left the porch light on. Not for guidance — for warning.",
+            "Some families pass down silver. This one passed down the bill.",
+        ],
+    },
+    "Zoey": {
+        "openers": [
+            "So {name} had been hiding in {place} for {days} days, which, credit where due, is at least four days longer than most people last in this storyline.",
+            "Here's the thing about {name}: legendary instincts, catastrophic follow-through. Like a chess prodigy who keeps flipping the board.",
+            "The universe clearly has a writers' room, and whoever is handling {name}'s arc needs to be fired. Into the sun.",
+            "Day {days} of the worst week of {name}'s life, and the week was keeping score.",
+        ],
+        "beats": [
+            "'I want it on record,' {name2} said, 'that I hated this plan from the sketch phase.' The record, being imaginary, declined to respond.",
+            "The {thing} made a noise like it was buffering. Honestly? Same.",
+            "Nothing says 'we're all doomed' like {place} going quiet. It never goes quiet. It's like a group chat that never sleeps.",
+            "{name} had exactly one skill left: making bad situations briefly hilarious. Deployed.",
+        ],
+        "closers": [
+            "And the moral of the story is — nothing. There is no moral. The credits roll and somebody's phone is still ringing.",
+            "{name} lived, which surprised everyone, including the narrator. Especially the narrator.",
+            "Roll credits, kill the lights, somebody owes somebody an apology and it is absolutely not going to happen.",
+        ],
+    },
+    "Scarlet": {
+        "openers": [
+            "{name} had left {place} burning {days} days ago, and the fire was still telling stories.",
+            "They described {name} as trouble. They were being kind. Trouble knocks first.",
+            "The casino in {place} had two exits and {name} had used both, wearing different smiles each time.",
+            "You don't find {name}. {name} finds you, usually right after you've decided you were safe.",
+        ],
+        "beats": [
+            "'Darling,' {name2} purred, 'I never lie. I just let men arrange the truth for me.'",
+            "The {thing} glittered like everything else in {place} — pretty, expensive, and one drink from ruin.",
+            "Red hair, red dress, red flags. {name} wore all three like a warning label nobody read.",
+            "Love, in {place}, was just another game with the house edge shaved a little meaner.",
+        ],
+        "closers": [
+            "{name} didn't say goodbye. Goodbyes are for people who plan to be remembered kindly.",
+            "The fire department filed it as an accident. The insurance company filed it as inevitable. {name} filed her nails.",
+            "Some flames warm you. Some flames bill you. This one did both and kept the change.",
+        ],
+    },
+}
+
+def _clamp_level(v):
+    return max(1, min(10, int(v)))
+
+def compose_story_local(topic, genre, humor, themes, power, harsh, words,
+                        persona_name="Mei"):
+    """Procedural composer — the default story path (zero token cost).
+    Not a substitute for a real model, but persona-voiced and dial-obedient."""
+    random.seed(hash((topic, genre, power, harsh, persona_name)) & 0xFFFFFFFF)
+    names = ["Marlow", "Vex", "Odette", "Sal", "Mercer", "Ines", "Cole", "Wren"]
+    places = ["the old district", "Harbor Row", "the outskirts", "Saint Ambrose",
+              "the lower town", "the terminal ward"]
+    things = ["clock", "radiator", "neon sign", "ceiling fan", "dishwasher"]
+    n1, n2 = random.sample(names, 2)
+    place = random.choice(places)
+    thing = random.choice(things)
+    days = random.randint(3, 40)
+
+    L = _PERSONA_LINES.get(persona_name, _PERSONA_LINES["Mei"])
+    fmt = lambda s: s.format(name=n1, name2=n2, place=place, thing=thing, days=days)
+    paras = [fmt(random.choice(L["openers"]))]
+    body_beats = max(2, min(8, round(words / 120)))
+    for _ in range(body_beats):
+        paras.append(fmt(random.choice(L["beats"])))
+    paras.append(fmt(random.choice(L["closers"])))
+
+    header = (f"[{persona_name} | {genre.replace('_',' ')} | "
+              f"{humor.replace('_',' ')} | intensity {power}/10 | "
+              f"{HARSHNESS_MODIFIERS[_clamp_level(harsh)]}"
+              f" — local composer, zero-token mode]\n\n")
+    return header + "\n\n".join(paras)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Engine v7 — Stories, Roleplay & Images</title>
+<style>
+  :root{--bg:#0d0d12;--panel:#17171f;--line:#2a2a38;--txt:#e8e6e3;--dim:#9a97a6;--acc:#ff4d2e;--acc2:#ffb347}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh}
+  header{padding:28px 24px 12px;border-bottom:1px solid var(--line)}
+  header h1{font-size:22px;letter-spacing:2px;text-transform:uppercase}
+  header h1 span{color:var(--acc)}
+  header p{color:var(--dim);font-size:13px;margin-top:6px;max-width:820px}
+  main{display:grid;grid-template-columns:360px 1fr;gap:20px;padding:20px 24px;max-width:1280px}
+  @media(max-width:880px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:14px 0 4px}
+  input[type=text],input[type=number],select,textarea{
+    width:100%;background:#101018;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 10px;font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--acc)}
+  input[type=file]{display:none}
+  .dial-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .dial-val{font-family:monospace;color:var(--acc2);min-width:92px;text-align:right;font-size:12px}
+  .themes{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:11px;padding:5px 10px;border:1px solid var(--line);border-radius:20px;cursor:pointer;color:var(--dim);user-select:none}
+  .chip.on{border-color:var(--acc);color:var(--acc)}
+  button{width:100%;margin-top:18px;padding:12px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .btn-story{background:var(--acc);color:#fff}
+  .btn-img{background:transparent;color:var(--acc2);border:1px solid var(--acc2)}
+  button:disabled{opacity:.5;cursor:wait}
+  .out{white-space:pre-wrap;line-height:1.75;font-size:15px}
+  .out img{max-width:100%;border-radius:10px;margin-top:12px}
+  .meta{color:var(--dim);font-size:12px;margin-top:14px;border-top:1px dashed var(--line);padding-top:10px;white-space:pre-wrap}
+  .err{color:#ff7070}
+  .src{float:right;font-size:11px;color:var(--acc2)}
+  .ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .ref-slot{border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;cursor:pointer;transition:.15s}
+  .ref-slot:hover{border-color:var(--acc2)}
+  .ref-slot img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:#101018}
+  .ref-slot .ph{width:100%;aspect-ratio:1;border-radius:6px;background:#101018;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;padding:6px}
+  .ref-slot .nm{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-top:5px}
+  .ref-slot .st{font-size:10px;color:var(--acc2)}
+  .ref-menu{display:flex;gap:4px;margin-top:5px}
+  .ref-menu button{margin:0;padding:3px 0;font-size:9px;text-transform:none;letter-spacing:0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:12px}
+  .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--line)}
+  .gallery img:hover{border-color:var(--acc)}
+  .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{padding:6px 14px;border:1px solid var(--line);border-radius:20px;font-size:12px;cursor:pointer;color:var(--dim)}
+  .tab.on{border-color:var(--acc);color:var(--acc)}
+  .check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--dim)}
+  .check input{accent-color:var(--acc)}
+  /* roleplay */
+  .chat{display:flex;flex-direction:column;gap:12px;max-height:56vh;overflow-y:auto;padding:6px 2px}
+  .msg{max-width:78%;padding:10px 14px;border-radius:14px;line-height:1.6;font-size:14.5px;white-space:pre-wrap}
+  .msg.user{align-self:flex-end;background:#2a1c3a;border-bottom-right-radius:4px}
+  .msg.char{align-self:flex-start;background:#1d2530;border-bottom-left-radius:4px}
+  .msg .who{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--acc2);margin-bottom:4px}
+  .chat-row{display:flex;gap:8px;margin-top:14px}
+  .chat-row input{flex:1}
+  .chat-row button{margin:0;padding:10px 18px;width:auto}
+  .char-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:var(--dim)}
+  .char-card b{color:var(--txt)}
+  .mini{display:flex;gap:6px;margin-top:6px}
+  .mini button{margin:0;padding:4px 10px;font-size:10px;width:auto;letter-spacing:0;text-transform:none}
+  .realism-tag{font-size:10px;color:var(--acc2);border:1px solid var(--acc2);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<header>
+  <h1>Creative <span>Engine</span> v7</h1>
+  <p>Stories, realistic roleplay &amp; images. Four writer personas, five dials, photorealism modes, reference slots where your uploads override defaults. Roleplay characters remember the conversation. The explicit dial tops out at suggestive: model policy, not negotiable.</p>
+</header>
+<main>
+  <div class="panel" id="leftPanel"></div>
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab on" data-t="out" onclick="showTab('out')">Output</div>
+      <div class="tab" data-t="rp" onclick="showTab('rp')">Roleplay</div>
+      <div class="tab" data-t="gal" onclick="showTab('gal')">Preview Gallery</div>
+    </div>
+    <div id="viewOut">
+      <div class="out" id="out">Your story or image will appear here.</div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div id="viewGal" style="display:none">
+      <div style="color:var(--dim);font-size:12px">Everything you've generated. Click an image to view it full-size.</div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ LEFT PANEL TEMPLATE (rendered by JS, state-swapped) ============ -->
+<template id="tplGen">
+  <label>Topic / premise</label>
+  <input type="text" id="topic" value="A retired hitman opens a bakery">
+  <label>Power — <span id="powerName">ABSOLUTE</span></label>
+  <div class="dial-row"><input type="range" id="power" min="1" max="10" value="7"><span class="dial-val" id="powerVal">7</span></div>
+  <label>Harshness — <span id="harshName">RUTHLESS</span></label>
+  <div class="dial-row"><input type="range" id="harsh" min="1" max="10" value="8"><span class="dial-val" id="harshVal">8</span></div>
+  <label>Gruesomeness — <span id="grueName">MACABRE</span></label>
+  <div class="dial-row"><input type="range" id="grue" min="1" max="10" value="4"><span class="dial-val" id="grueVal">4</span></div>
+  <label>Genre</label><select id="genre"></select>
+  <label>Dark humor style</label><select id="humor"></select>
+  <label>Style (images) — <span class="realism-tag">📷 = photorealism</span></label><select id="art_style"></select>
+  <label>Themes</label><div class="themes" id="themes"></div>
+  <label>Reference images — your uploads override defaults</label>
+  <div class="ref-grid" id="refGrid"></div>
+  <input type="file" id="refFile" accept="image/*">
+  <div class="check"><input type="checkbox" id="useRefs" checked><span>Use references when generating images</span></div>
+  <label>Persona — the writer's voice</label>
+  <select id="persona"><option selected>Mei</option><option>Georgia</option><option>Zoey</option><option>Scarlet</option></select>
+  <label>Story length (words)</label>
+  <input type="number" id="words" value="500" min="100" max="2000">
+  <label>Image size</label>
+  <select id="size"><option selected>1024x1024</option><option>1536x1024</option><option>1024x1536</option><option>2048x1152</option></select>
+  <button class="btn-story" id="bStory" onclick="gen('story')">Generate Story</button>
+  <button class="btn-img" id="bImage" onclick="gen('image')">Generate Image</button>
+</template>
+
+<template id="tplRp">
+  <label>Character</label>
+  <select id="rpChar" onchange="rpSelect()"></select>
+  <div class="char-card" id="rpCard"></div>
+  <div class="mini">
+    <button class="btn-img" onclick="rpNewChar()">+ New character</button>
+    <button class="btn-img" onclick="rpResetChat()">Reset chat</button>
+  </div>
+  <div id="rpNewForm" style="display:none;margin-top:10px">
+    <label>Name</label><input type="text" id="ncName">
+    <label>Speech style (e.g. "terse, military")</label><input type="text" id="ncStyle">
+    <label>Catchphrase (said when dodging questions)</label><input type="text" id="ncCatch">
+    <label>Default line</label><input type="text" id="ncDefault">
+    <label>Soft line (when things get tender)</label><input type="text" id="ncSoft">
+    <label>Character summary</label><input type="text" id="ncCard">
+    <button class="btn-story" onclick="rpCreateChar()">Create</button>
+  </div>
+  <label>Attitude — <span id="rpToneName">NEUTRAL</span></label>
+  <div class="dial-row"><input type="range" id="rpTone" min="1" max="10" value="5"><span class="dial-val" id="rpToneVal">5</span></div>
+  <div class="check"><span style="font-size:12px">Low = open &amp; soft. High = defensive, hostile, dodges questions. Local engine, zero tokens.</span></div>
+</template>
+
+<script>
+/* ============================= STATE ============================= */
+const P=["","MINIMUM","LOW","MEDIUM","HIGH","MAXIMUM","ULTIMATE","ABSOLUTE","INFINITE","BEYOND","TRANSCENDENT"];
+const H=["","SOFT","GENTLE","FIRM","HARSH","SEVERE","BRUTAL","MERCILESS","RUTHLESS","SAVAGE","ABSOLUTE"];
+const G=["","TAME","UNEASY","CREEPIER","MACABRE","GRIM","GRUESOME","HORRIFIC","NIGHTMARISH","ABHORRENT","UNSPEAKABLE"];
+const TONE=["","SWEET","OPEN","WARM","EVEN","NEUTRAL","GUARDED","WARY","COLD","HOSTILE","ICE"];
+let REFS={}, REF_MODES={scene:"upload",character:"upload",pose:"upload"};
+let CHARS=[], CURRENT_TAB="out";
+
+const SLOT_LABEL={scene:"Scene",character:"Character",pose:"Pose / Creativity"};
+const $=id=>document.getElementById(id);
+
+/* ============================= LEFT PANEL ============================= */
+let leftMode=null;
+function renderLeft(mode){
+  leftMode=mode;
+  const t=$(mode==="rp"?"tplRp":"tplGen");
+  $("leftPanel").innerHTML="";$("leftPanel").appendChild(t.content.cloneNode(true));
+  if(mode==="rp"){initRpPanel();}else{initGenPanel();}
+}
+function showTab(t){
+  CURRENT_TAB=t;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
+  ["Out","Gal"].forEach(v=>$("view"+v).style.display=(t==="out"||t==="gal")&&$("view"+v).id.toLowerCase()==="view"+t.toLowerCase()?"":"none");
+  $("viewOut").style.display=t==="out"?"":"none";
+  $("viewGal").style.display=t==="gal"?"":"none";
+  const rp=document.getElementById("viewRp");
+  if(rp)rp.style.display=t==="rp"?"":"none";
+  renderLeft(t==="rp"?"rp":"gen");
+  if(t==="gal")loadGallery();
+}
+/* dedicated rp view lives inside right panel */
+(function(){
+  const d=document.createElement("div");d.id="viewRp";d.style.display="none";
+  d.innerHTML='<div class="chat" id="chat"></div><div class="chat-row"><input type="text" id="rpInput" placeholder="Say something..." onkeydown="if(event.key===\'Enter\')rpSend()"><button class="btn-story" onclick="rpSend()">Send</button></div>';
+  document.querySelectorAll(".panel")[1].appendChild(d);
+})();
+
+/* ============================= GENERATE PANEL ============================= */
+function initGenPanel(){
+  fetch("/api/options").then(r=>r.json()).then(d=>{
+    const fill=(id,list)=>{const s=$(id);list.forEach(x=>{const o=document.createElement("option");o.textContent=x;s.appendChild(o);});};
+    fill("genre",d.genres);fill("humor",d.humor_styles);
+    const s=$("art_style");
+    const og=document.createElement("optgroup");og.label="Illustration";d.art_styles.forEach(x=>{const o=document.createElement("option");o.textContent=x;og.appendChild(o);});
+    const rg=document.createElement("optgroup");rg.label="Photorealism";d.realism_styles.forEach(x=>{const o=document.createElement("option");o.textContent=x;rg.appendChild(o);});
+    s.appendChild(og);s.appendChild(rg);
+    const t=$("themes");
+    d.themes.forEach(x=>{const c=document.createElement("span");c.className="chip";c.textContent=x;c.onclick=()=>c.classList.toggle("on");t.appendChild(c);});
+    REFS=d.refs;renderRefs();
+  });
+  for(const id of ["power","harsh","grue"]){
+    $(id).addEventListener("input",e=>{
+      const v=+e.target.value;
+      $(id+"Val").textContent=v;
+      $(id+"Name").textContent=(id==="power"?P:id==="harsh"?H:G)[v];
+    });
+  }
+}
+function renderRefs(){
+  const g=$("refGrid");g.innerHTML="";
+  for(const slot of ["scene","character","pose"]){
+    const st=REFS[slot]||{}, mode=REF_MODES[slot];
+    let src=null;
+    if(mode==="upload"&&st.upload)src="/ref/"+slot+".png?which=upload&t="+Date.now();
+    else if(mode==="default"&&st.default)src="/ref/"+slot+".png?which=default&t="+Date.now();
+    const div=document.createElement("div");div.className="ref-slot";
+    div.innerHTML=(src?'<img src="'+src+'">':'<div class="ph">empty<br>'+mode+'</div>')
+      +'<div class="nm">'+SLOT_LABEL[slot]+'</div>'
+      +'<div class="st">'+(st.upload?"● upload set":"○ no upload")+(st.default?" · ● default":" · ○ no default")+'</div>'
+      +'<div class="ref-menu">'
+      +'<button onclick="event.stopPropagation();uploadRef(\''+slot+'\')">Upload</button>'
+      +'<button onclick="event.stopPropagation();cycleMode(\''+slot+'\')">Mode: '+mode+'</button>'
+      +'<button onclick="event.stopPropagation();clearRef(\''+slot+'\')">Clear</button>'
+      +'</div>';
+    g.appendChild(div);
+  }
+}
+function cycleMode(slot){const o=["upload","default","none"];REF_MODES[slot]=o[(o.indexOf(REF_MODES[slot])+1)%3];renderRefs();}
+function uploadRef(slot){
+  const inp=$("refFile");inp.value="";inp.onchange=async()=>{
+    if(!inp.files[0])return;
+    const fd=new FormData();fd.append("file",inp.files[0]);
+    await fetch("/api/ref/"+slot,{method:"POST",body:fd});
+    REF_MODES[slot]="upload";
+    const o=await (await fetch("/api/options")).json();REFS=o.refs;renderRefs();
+  };inp.click();
+}
+async function clearRef(slot){
+  await fetch("/api/ref/"+slot,{method:"DELETE"});
+  const o=await (await fetch("/api/options")).json();REFS=o.refs;renderRefs();
+}
+async function gen(kind){
+  const out=$("out"),meta=$("meta");
+  const btn=$(kind==="story"?"bStory":"bImage");
+  btn.disabled=true;showTab("out");out.textContent="Generating…";meta.textContent="";
+  const body={
+    topic:$("topic").value,power:+$("power").value,harshness:+$("harsh").value,
+    gruesome:+$("grue").value,genre:$("genre").value,humor:$("humor").value,
+    art_style:$("art_style").value,
+    themes:[...document.querySelectorAll(".chip.on")].map(c=>c.textContent),
+    words:+$("words").value,size:$("size").value,
+    use_references:$("useRefs").checked,ref_mode:REF_MODES,
+    persona:$("persona").value
+  };
+  try{
+    const r=await fetch("/api/"+kind,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.error){out.innerHTML='<span class="err">'+d.error+'</span>';}
+    else if(kind==="story"){
+      out.innerHTML='<span class="src">source: '+d.source+'</span>'+escapeHtml(d.story);
+      meta.textContent="Engine prompt:\n"+d.engine_prompt;
+    }else{
+      out.innerHTML='<img src="'+d.path+'" alt="generated">';
+      meta.textContent="Image prompt:\n"+d.prompt+"\nReferences used: "+(d.references_used&&d.references_used.length?d.references_used.join(", "):"none");
+    }
+  }catch(e){out.innerHTML='<span class="err">Request failed: '+e+'</span>';}
+  btn.disabled=false;
+}
+
+/* ============================= ROLEPLAY ============================= */
+function initRpPanel(){
+  const t=$("rpTone");
+  t.addEventListener("input",e=>{const v=+e.target.value;$("rpToneVal").textContent=v;$("rpToneName").textContent=TONE[v];});
+  fetch("/api/characters").then(r=>r.json()).then(d=>{
+    CHARS=d.characters;
+    const s=$("rpChar");s.innerHTML="";
+    CHARS.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;s.appendChild(o);});
+    rpSelect();
+  });
+}
+function rpSelect(){
+  const c=CHARS.find(x=>x.id===$("rpChar").value)||CHARS[0];
+  if(!c)return;
+  $("rpCard").innerHTML="<b>"+c.name+"</b> — "+(c.card||"")+"<br><i style='color:var(--acc2)'>"+(c.speech_style||"")+"</i>";
+  loadRpHistory(c.id);
+}
+async function loadRpHistory(cid){
+  const d=await (await fetch("/api/rp/"+cid+"/history")).json();
+  const chat=$("chat");chat.innerHTML="";
+  (d.messages||[]).forEach(m=>addMsg(m.role,m.text,m.name));
+}
+function addMsg(role,text,name){
+  const chat=$("chat");
+  const div=document.createElement("div");div.className="msg "+(role==="user"?"user":"char");
+  div.innerHTML=(role==="char"&&name?'<div class="who">'+name+'</div>':'')+escapeHtml(text);
+  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;
+}
+async function rpSend(){
+  const inp=$("rpInput"),text=inp.value.trim();
+  if(!text)return;
+  const cid=$("rpChar").value;
+  addMsg("user",text);inp.value="";inp.disabled=true;
+  try{
+    const r=await fetch("/api/rp/send",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({character_id:cid,message:text,tone:+$("rpTone").value})});
+    const d=await r.json();
+    if(d.error){addMsg("char","⚠ "+d.error,"system");}
+    else{const c=CHARS.find(x=>x.id===cid);addMsg("char",d.reply,c?c.name:"");}
+  }catch(e){addMsg("char","⚠ request failed","system");}
+  inp.disabled=false;inp.focus();
+}
+function rpNewChar(){$("rpNewForm").style.display=$("rpNewForm").style.display==="none"?"":"none";}
+async function rpCreateChar(){
+  const body={name:$("ncName").value,speech_style:$("ncStyle").value,catchphrase:$("ncCatch").value,
+    default_line:$("ncDefault").value,soft_line:$("ncSoft").value,card:$("ncCard").value};
+  if(!body.name)return;
+  await fetch("/api/characters",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  $("rpNewForm").style.display="none";
+  const d=await (await fetch("/api/characters")).json();CHARS=d.characters;
+  const s=$("rpChar");s.innerHTML="";
+  CHARS.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.name;s.appendChild(o);});
+  s.value=CHARS[CHARS.length-1].id;rpSelect();
+}
+async function rpResetChat(){
+  const cid=$("rpChar").value;
+  await fetch("/api/rp/"+cid+"/history",{method:"DELETE"});
+  $("chat").innerHTML="";
+}
+
+/* ============================= GALLERY ============================= */
+async function loadGallery(){
+  const g=$("gallery");g.innerHTML="";
+  const d=await (await fetch("/api/gallery")).json();
+  d.images.forEach(it=>{
+    const img=document.createElement("img");img.src=it.url;
+    img.onclick=()=>{showTab("out");
+      $("out").innerHTML='<img src="'+it.url+'" style="max-width:100%;border-radius:10px">';
+      $("meta").textContent="";};
+    g.appendChild(img);
+  });
+  if(!d.images.length)g.innerHTML='<div style="color:var(--dim)">Nothing yet — generate something.</div>';
+}
+
+function escapeHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+renderLeft("gen");
+</script>
+</body>
+</html>
+
+{
+  "name": "app",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {}
+}
+
+fastapi
+uvicorn
+requests
+pydantic
+agent-gw>=0.3.0
+
+#!/usr/bin/env python3
+# ============================================================================
+# FILE: server.py  —  PROJECT ROOT: /mnt/agents/output/app/
+# ROLE: Web layer only. All creative logic lives in engine.py.
+#   ROUTE MAP:
+#     GET  /                  UI
+#     GET  /api/options       dropdown data (personas, genres, refs state)
+#     POST /api/story         story generation   <- token-saving switch: MEI_CHAT env
+#     POST /api/image         image generation (agent-gw, v2, + references)
+#     POST /api/ref/{slot}    upload scene/character/pose reference (overrides)
+#     DELETE /api/ref/{slot}  clear a reference
+#     GET  /ref/{slot}.png    view a reference
+#     GET  /api/gallery       preview gallery JSON
+#     GET  /img/{name}        serve generated image
+#   FIX POINTS:
+#     - story fallback/loops  -> story() below (chat try/except)
+#     - image failures        -> image() below (gateway envelope parsing)
+#     - upload failures       -> _to_public_url() (signed_url extraction)
+# ============================================================================
+"""Personal Story & Image Generator — FastAPI backend.
+
+Gateway: agent-gw (Moonshot agent gateway SDK).
+  - Images: client.tools.generate_image(description, size, reference_image_urls)
+  - Uploads: client.upload_storage(...) -> public signed_url (required,
+    because the gateway only accepts PUBLIC reference URLs).
+  - Stories: client.chat_completion(model='kimi-for-coding') with local
+    composer fallback when the credential can't reach chat.
+Reference precedence: user-uploaded files override everything. If a slot
+has no upload, any saved defaults are used; otherwise the slot is empty.
+"""
+import os, re, uuid, json
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from engine import (CONTENT_TYPE, DARK_FICTION_GENRES, DARK_HUMOR_STYLES,
+                    DARK_ART_STYLES, REALISM_STYLES, MATURE_THEMES, PERSONAS,
+                    verify_safety, build_story_prompt, build_image_prompt,
+                    compose_story_local, SAFETY_REFUSAL, RP_RULES,
+                    rp_reply_local)
+
+# Token-saving: stories use the free local composer by default.
+# Set MEI_CHAT=1 in the environment to re-enable the paid chat model.
+USE_CHAT = os.environ.get("MEI_CHAT", "") == "1"
+
+app = FastAPI(title="Personal Creative Engine v7")
+BASE = os.path.dirname(__file__)
+IMG_DIR = os.path.join(BASE, "generated")
+UP_DIR = os.path.join(BASE, "uploads")
+os.makedirs(IMG_DIR, exist_ok=True)
+os.makedirs(UP_DIR, exist_ok=True)
+
+# Reference slots: scene / character / pose-creativity.
+# User uploads (refs/<slot>.png) ALWAYS override defaults (defaults/<slot>.png).
+REF_SLOTS = ["scene", "character", "pose"]
+DEFAULTS_DIR = os.path.join(UP_DIR, "defaults")
+REFS_DIR = os.path.join(UP_DIR, "refs")
+os.makedirs(DEFAULTS_DIR, exist_ok=True)
+os.makedirs(REFS_DIR, exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Character cards + RP chat history — JSON persistence (Supabase-ready schema)
+# ---------------------------------------------------------------------------
+DATA_DIR = os.path.join(BASE, "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+CHARS_FILE = os.path.join(DATA_DIR, "characters.json")
+CHATS_FILE = os.path.join(DATA_DIR, "chats.json")
+
+
+def _load_json(path, default):
+    if os.path.isfile(path):
+        try:
+            with open(path) as f:
+                return json.load(f)
+        except Exception:
+            return default
+    return default
+
+
+def _save_json(path, obj):
+    with open(path, "w") as f:
+        json.dump(obj, f, indent=1)
+
+
+DEFAULT_CHARACTERS = [
+    {"id": "mei", "name": "Mei", "speech_style": "precise, ironic, dry",
+     "catchphrase": "Ask me something real.",
+     "default_line": "Say what you came to say.",
+     "soft_line": "don't make this harder.",
+     "pronouns": "she",
+     "card": "Razor-sharp, all-genre writer's mind. Doesn't flatter, doesn't fill silence."},
+    {"id": "georgia", "name": "Georgia", "speech_style": "slow, honey-and-ash",
+     "catchphrase": "Sugar, everybody in this town lies. I'm just honest about it.",
+     "default_line": "Sit down. Sweet tea's already poured.",
+     "soft_line": "you stay right where I can see you.",
+     "pronouns": "she",
+     "card": "Southern gothic matriarch. Warm until she isn't. Knows everyone's sins."},
+    {"id": "zoey", "name": "Zoey", "speech_style": "fast, chaotic, bitingly funny",
+     "catchphrase": "Okay so that's either the best or worst idea I've heard today and it's 50/50.",
+     "default_line": "Please tell me there's a plan and you just haven't told me the plan.",
+     "soft_line": "...don't go, okay?",
+     "pronouns": "she",
+     "card": "Chaotic absurdist with a good heart and catastrophic impulse control."},
+    {"id": "scarlet", "name": "Scarlet", "speech_style": "low, velvet, unhurried",
+     "catchphrase": "Darling, I never lie. I just let men arrange the truth.",
+     "default_line": "You've been watching me for ten minutes. Say something worth the stare.",
+     "soft_line": "you're the one thing I didn't plan for.",
+     "pronouns": "she",
+     "card": "Flame-haired femme fatale. Smiles like a knife. Never the one who burns."},
+]
+
+
+class GenRequest(BaseModel):
+    topic: str
+    power: int = 7
+    harshness: int = 7
+    content: str = "UNLEASHED"
+    genre: str = "NOIR"
+    humor: str = "DARK_SATIRE"
+    themes: list = []
+    art_style: str = "DARK_SATIRE"
+    gruesome: int = 1
+    persona: str = "Mei"
+    words: int = 500
+    size: str = "1024x1024"
+    use_references: bool = True
+    # per-slot overrides: "upload" (default), "default", "none"
+    ref_mode: dict = {}
+
+
+def _clamp(v, lo, hi):
+    return max(lo, min(hi, int(v)))
+
+
+def _pick(d, key, default):
+    return key if key in d else default
+
+
+def _ref_files(req: GenRequest):
+    """Files win over defaults. Mode: 'upload'|'default'|'none'."""
+    files = []
+    for slot in REF_SLOTS:
+        mode = (req.ref_mode or {}).get(slot, "upload")
+        if mode == "none":
+            continue
+        upload = os.path.join(REFS_DIR, f"{slot}.png")
+        default = os.path.join(DEFAULTS_DIR, f"{slot}.png")
+        if mode == "default":
+            if os.path.isfile(default):
+                files.append((slot, default))
+        else:
+            if os.path.isfile(upload):
+                files.append((slot, upload))          # user file overrides
+            elif os.path.isfile(default):
+                files.append((slot, default))         # fallback to default
+    return files
+
+
+def _client():
+    from agent_gw import AgentGwClient
+    return AgentGwClient(timeout=450.0)
+
+
+def _to_public_url(client, path):
+    """Upload a local file via the gateway storage API -> public signed URL."""
+    with open(path, "rb") as f:
+        resp = client.upload_storage(f.read(), filename=os.path.basename(path),
+                                     content_type="image/png")
+    raw = resp.raw if hasattr(resp, "raw") else resp
+    if isinstance(raw, dict) and "signed_url" in raw:
+        return raw["signed_url"]
+    # envelope shape
+    text = raw["result"]["user"][0]["text"]
+    data = json.loads(text) if isinstance(text, str) else text
+    return data.get("signed_url") or data.get("url")
+
+
+@app.get("/")
+def index():
+    return FileResponse(os.path.join(BASE, "index.html"))
+
+
+@app.get("/api/options")
+def options():
+    return {
+        "personas": list(PERSONAS),
+        "content_types": [c.name for c in CONTENT_TYPE],
+        "genres": list(DARK_FICTION_GENRES),
+        "humor_styles": list(DARK_HUMOR_STYLES),
+        "art_styles": list(DARK_ART_STYLES),
+        "realism_styles": list(REALISM_STYLES),
+        "themes": list(MATURE_THEMES),
+        "ref_slots": REF_SLOTS,
+        "refs": {
+            slot: {
+                "upload": os.path.isfile(os.path.join(REFS_DIR, f"{slot}.png")),
+                "default": os.path.isfile(os.path.join(DEFAULTS_DIR, f"{slot}.png")),
+            } for slot in REF_SLOTS
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
+# Reference upload / management — user files override defaults
+# ---------------------------------------------------------------------------
+
+@app.post("/api/ref/{slot}")
+async def upload_ref(slot: str, file: UploadFile = File(...)):
+    if slot not in REF_SLOTS:
+        return JSONResponse({"error": f"unknown slot {slot}"}, status_code=404)
+    data = await file.read()
+    if not data:
+        return JSONResponse({"error": "empty file"}, status_code=400)
+    out = os.path.join(REFS_DIR, f"{slot}.png")
+    with open(out, "wb") as f:
+        f.write(data)
+    return {"ok": True, "slot": slot, "bytes": len(data),
+            "note": "upload overrides default for this slot"}
+
+
+@app.delete("/api/ref/{slot}")
+def delete_ref(slot: str, which: str = "upload"):
+    target = REFS_DIR if which == "upload" else DEFAULTS_DIR
+    p = os.path.join(target, f"{slot}.png")
+    if os.path.isfile(p):
+        os.remove(p)
+    return {"ok": True}
+
+
+@app.get("/ref/{slot}.png")
+def get_ref(slot: str, which: str = "upload"):
+    target = REFS_DIR if which == "upload" else DEFAULTS_DIR
+    p = os.path.join(target, f"{slot}.png")
+    if os.path.isfile(p):
+        return FileResponse(p)
+    return JSONResponse({"error": "not set"}, status_code=404)
+
+
+# ---------------------------------------------------------------------------
+# Preview gallery
+# ---------------------------------------------------------------------------
+
+@app.get("/api/gallery")
+def gallery():
+    items = []
+    for name in sorted(os.listdir(IMG_DIR), reverse=True):
+        if name.endswith((".png", ".jpg")):
+            items.append({"name": name, "url": f"/img/{name}",
+                          "time": os.path.getmtime(os.path.join(IMG_DIR, name))})
+    return {"images": items}
+
+
+# ---------------------------------------------------------------------------
+# Story
+# ---------------------------------------------------------------------------
+
+@app.post("/api/story")
+def story(req: GenRequest):
+    ok, violation = verify_safety(req.topic)
+    if not ok:
+        return JSONResponse({"error": SAFETY_REFUSAL, "violation": violation},
+                            status_code=422)
+    power = _clamp(req.power, 1, 10)
+    harsh = _clamp(req.harshness, 1, 10)
+    genre = _pick(DARK_FICTION_GENRES, req.genre, "NOIR")
+    humor = _pick(DARK_HUMOR_STYLES, req.humor, "DARK_SATIRE")
+    themes = [t for t in req.themes if t in MATURE_THEMES][:5] or \
+             ["MORAL_AMBIGUITY", "DARK_PSYCHOLOGY", "BETRAYAL"]
+    words = _clamp(req.words, 100, 2000)
+    gruesome = _clamp(req.gruesome, 1, 10)
+    persona = req.persona if req.persona in PERSONAS else "Mei"
+    prompt = build_story_prompt(req.topic, genre, humor, themes, power, harsh,
+                                words, gruesome, persona_name=persona)
+    # TOKEN-SAVING: local composer is the default story path (free).
+    # Set env MEI_CHAT=1 to attempt the paid chat model first.
+    if USE_CHAT:
+        try:
+            client = _client()
+            resp = client.chat_completion(
+                model="kimi-for-coding",
+                messages=[{"role": "user", "content": prompt}],
+                timeout=120.0,
+            )
+            text = resp["choices"][0]["message"]["content"]
+            return {"story": text, "engine_prompt": prompt, "source": "chat-model"}
+        except Exception as e:
+            print(f"[story] chat model failed, falling back: {e}")
+    text = compose_story_local(req.topic, genre, humor, themes, power, harsh,
+                               words, persona)
+    return {"story": text, "engine_prompt": prompt, "source": "local-composer"}
+
+
+# ---------------------------------------------------------------------------
+# Image (with reference slots)
+# ---------------------------------------------------------------------------
+
+@app.post("/api/image")
+def image(req: GenRequest):
+    ok, violation = verify_safety(req.topic)
+    if not ok:
+        return JSONResponse({"error": SAFETY_REFUSAL, "violation": violation},
+                            status_code=422)
+    power = _clamp(req.power, 1, 10)
+    harsh = _clamp(req.harshness, 1, 10)
+    art_style = _pick(DARK_ART_STYLES, req.art_style, "DARK_SATIRE")
+    gruesome = _clamp(req.gruesome, 1, 10)
+    desc = build_image_prompt(req.topic, art_style, power, harsh, gruesome)
+    out = os.path.join(IMG_DIR, f"{uuid.uuid4().hex}.png")
+    try:
+        import requests
+        client = _client()
+        ref_urls = []
+        if req.use_references:
+            for slot, path in _ref_files(req):
+                ref_urls.append(_to_public_url(client, path))
+        kwargs = dict(description=desc, size=req.size, version="v2", timeout=450.0)
+        if ref_urls:
+            kwargs["reference_image_urls"] = ref_urls
+        resp = client.tools.generate_image(**kwargs)
+        raw = resp.raw if hasattr(resp, "raw") else resp
+        if "media" in raw:
+            media = raw["media"]
+        else:
+            if not raw.get("is_success"):
+                raise RuntimeError(f"gateway error: {raw.get('error')}")
+            inner = raw["result"]["user"][0]["text"]
+            media = json.loads(inner).get("media", {}) if isinstance(inner, str) else inner.get("media", {})
+        url = media.get("url")
+        if not url:
+            raise RuntimeError("No media URL in response")
+        r = requests.get(url, timeout=120)
+        r.raise_for_status()
+        with open(out, "wb") as f:
+            f.write(r.content)
+        return {"path": f"/img/{os.path.basename(out)}", "prompt": desc,
+                "references_used": [s for s, _ in _ref_files(req)]}
+    except Exception as e:
+        return JSONResponse({"error": f"Image generation failed: {e}"}, status_code=500)
+
+
+# ---------------------------------------------------------------------------
+# Character cards + roleplay chat
+# ---------------------------------------------------------------------------
+
+class CharIn(BaseModel):
+    name: str
+    speech_style: str = ""
+    catchphrase: str = ""
+    default_line: str = ""
+    soft_line: str = ""
+    pronouns: str = "she"
+    card: str = ""
+
+
+class RpMsg(BaseModel):
+    character_id: str
+    message: str
+    tone: int = 5          # 1=soft .. 10=hostile
+    persona: str = ""      # unused by local composer; reserved
+
+
+@app.get("/api/characters")
+def list_chars():
+    chars = _load_json(CHARS_FILE, None)
+    if chars is None:
+        chars = DEFAULT_CHARACTERS
+        _save_json(CHARS_FILE, chars)
+    return {"characters": chars}
+
+
+@app.post("/api/characters")
+def create_char(c: CharIn):
+    chars = _load_json(CHARS_FILE, list(DEFAULT_CHARACTERS))
+    entry = {"id": uuid.uuid4().hex[:8],
+             **(c.model_dump() if hasattr(c, "model_dump") else c.dict())}
+    chars.append(entry)
+    _save_json(CHARS_FILE, chars)
+    return entry
+
+
+@app.delete("/api/characters/{cid}")
+def delete_char(cid: str):
+    chars = _load_json(CHARS_FILE, [])
+    chars = [c for c in chars if c.get("id") != cid]
+    _save_json(CHARS_FILE, chars)
+    # also drop its chat history
+    chats = _load_json(CHATS_FILE, {})
+    chats.pop(cid, None)
+    _save_json(CHATS_FILE, chats)
+    return {"ok": True}
+
+
+@app.get("/api/rp/{cid}/history")
+def rp_history(cid: str):
+    chats = _load_json(CHATS_FILE, {})
+    return {"messages": chats.get(cid, [])[-100:]}
+
+
+@app.post("/api/rp/send")
+def rp_send(msg: RpMsg):
+    ok, violation = verify_safety(msg.message)
+    if not ok:
+        return JSONResponse({"error": SAFETY_REFUSAL, "violation": violation},
+                            status_code=422)
+    chars = _load_json(CHARS_FILE, list(DEFAULT_CHARACTERS))
+    char = next((c for c in chars if c.get("id") == msg.character_id), None)
+    if not char:
+        return JSONResponse({"error": "character not found"}, status_code=404)
+    chats = _load_json(CHATS_FILE, {})
+    hist = chats.setdefault(msg.character_id, [])
+    hist.append({"role": "user", "text": msg.message})
+    reply = rp_reply_local(char, msg.message, hist, tone=_clamp(msg.tone, 1, 10))
+    hist.append({"role": "char", "text": reply, "name": char.get("name")})
+    _save_json(CHATS_FILE, chats)
+    return {"reply": reply, "history": hist[-100:]}
+
+
+@app.delete("/api/rp/{cid}/history")
+def rp_reset(cid: str):
+    chats = _load_json(CHATS_FILE, {})
+    chats.pop(cid, None)
+    _save_json(CHATS_FILE, chats)
+    return {"ok": True}
+
+
+@app.get("/img/{name}")
+def get_img(name: str):
+    safe = re.sub(r"[^a-f0-9.]", "", name)
+    p = os.path.join(IMG_DIR, safe)
+    if os.path.isfile(p):
+        return FileResponse(p)
+    return JSONResponse({"error": "not found"}, status_code=404)
+
+
+app.mount("/static", StaticFiles(directory=os.path.join(BASE, "static")), name="static")
