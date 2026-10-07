@@ -578,4 +578,6 @@ def get_img(name: str):
     return JSONResponse({"error": "not found"}, status_code=404)
 
 
-app.mount("/static", StaticFiles(directory=os.path.join(BASE, "static")), name="static")
+STATIC_DIR = os.path.join(BASE, "static")
+os.makedirs(STATIC_DIR, exist_ok=True)   # auto-create if missing — no more crash
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
