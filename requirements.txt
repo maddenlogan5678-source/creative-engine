@@ -2,4 +2,4 @@ fastapi
 uvicorn
 requests
 pydantic
-agent-gw>=0.3.0
+
