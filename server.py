@@ -580,4 +580,6 @@ def get_img(name: str):
 
 STATIC_DIR = os.path.join(BASE, "static")
 os.makedirs(STATIC_DIR, exist_ok=True)   # auto-create if missing — no more crash
+STATIC_DIR = os.path.join(BASE, "static")
+os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
