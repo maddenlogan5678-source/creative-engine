@@ -583,3 +583,13 @@ os.makedirs(STATIC_DIR, exist_ok=True)   # auto-create if missing — no more cr
 STATIC_DIR = os.path.join(BASE, "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+@app.get("/")
+def index():
+    p = os.path.join(BASE, "index.html")
+    if os.path.isfile(p):
+        return FileResponse(p)
+    return JSONResponse({"error": "index.html missing — re-upload it"}, status_code=404)
+
+@app.get("/healthz")
+def healthz():
+    return {"ok": True}
