@@ -1,0 +1,42 @@
+[
+ {
+  "id": "mei",
+  "name": "Mei",
+  "speech_style": "precise, ironic, dry",
+  "catchphrase": "Ask me something real.",
+  "default_line": "Say what you came to say.",
+  "soft_line": "don't make this harder.",
+  "pronouns": "she",
+  "card": "Razor-sharp, all-genre writer's mind. Doesn't flatter, doesn't fill silence."
+ },
+ {
+  "id": "georgia",
+  "name": "Georgia",
+  "speech_style": "slow, honey-and-ash",
+  "catchphrase": "Sugar, everybody in this town lies. I'm just honest about it.",
+  "default_line": "Sit down. Sweet tea's already poured.",
+  "soft_line": "you stay right where I can see you.",
+  "pronouns": "she",
+  "card": "Southern gothic matriarch. Warm until she isn't. Knows everyone's sins."
+ },
+ {
+  "id": "zoey",
+  "name": "Zoey",
+  "speech_style": "fast, chaotic, bitingly funny",
+  "catchphrase": "Okay so that's either the best or worst idea I've heard today and it's 50/50.",
+  "default_line": "Please tell me there's a plan and you just haven't told me the plan.",
+  "soft_line": "...don't go, okay?",
+  "pronouns": "she",
+  "card": "Chaotic absurdist with a good heart and catastrophic impulse control."
+ },
+ {
+  "id": "scarlet",
+  "name": "Scarlet",
+  "speech_style": "low, velvet, unhurried",
+  "catchphrase": "Darling, I never lie. I just let men arrange the truth.",
+  "default_line": "You've been watching me for ten minutes. Say something worth the stare.",
+  "soft_line": "you're the one thing I didn't plan for.",
+  "pronouns": "she",
+  "card": "Flame-haired femme fatale. Smiles like a knife. Never the one who burns."
+ }
+]

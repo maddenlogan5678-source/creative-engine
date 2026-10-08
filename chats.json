@@ -1,0 +1,69 @@
+{
+ "mei": [
+  {
+   "role": "user",
+   "text": "hello"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*Mei drums her fingers on the table.*\n\n\"Right. Say what you came to say.\"",
+   "name": "Mei"
+  },
+  {
+   "role": "user",
+   "text": "hello"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*a long pause.*\n\n\"... Say what you came to say.\"",
+   "name": "Mei"
+  },
+  {
+   "role": "user",
+   "text": "hello"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*Mei looks away.*\n\n\"I mean, Say what you came to say.\"",
+   "name": "Mei"
+  },
+  {
+   "role": "user",
+   "text": "hello"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*Mei exhales slowly.*\n\n\"Yeah, no. Say what you came to say.\"",
+   "name": "Mei"
+  },
+  {
+   "role": "user",
+   "text": "hi"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*Mei drums her fingers on the table.*\n\n\"I mean, Say what you came to say.\"",
+   "name": "Mei"
+  },
+  {
+   "role": "user",
+   "text": "hello"
+  },
+  {
+   "role": "char",
+   "text": "[Mei \u2014 precise, ironic, dry]\n*Mei doesn't answer right away.*\n\n\"Wait. Say what you came to say.\"",
+   "name": "Mei"
+  }
+ ],
+ "scarlet": [
+  {
+   "role": "user",
+   "text": "did you miss me?"
+  },
+  {
+   "role": "char",
+   "text": "[Scarlet \u2014 low, velvet, unhurried]\n*Scarlet drums her fingers on the table.*\n\n\"I mean, Darling, I never lie. I just let men arrange the truth.\"",
+   "name": "Scarlet"
+  }
+ ]
+}
