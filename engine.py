@@ -574,6 +574,20 @@ _PERSONA_LINES = {
 def _clamp_level(v):
     return max(1, min(10, int(v)))
 
+def _cycle(pool):
+    """Yield pool items in shuffled order, reshuffling between cycles and
+    never repeating the previous item across a cycle boundary. Kills the
+    doubled-beat bug in compose_story_local()."""
+    prev = None
+    while True:
+        order = random.sample(pool, len(pool))
+        if prev is not None and len(pool) > 1 and order[0] == prev:
+            order[0], order[1] = order[1], order[0]
+        for x in order:
+            prev = x
+            yield x
+
+
 def compose_story_local(topic, genre, humor, themes, power, harsh, words,
                         persona_name="Mei"):
     """Procedural composer — the default story path (zero token cost).
@@ -592,8 +606,9 @@ def compose_story_local(topic, genre, humor, themes, power, harsh, words,
     fmt = lambda s: s.format(name=n1, name2=n2, place=place, thing=thing, days=days)
     paras = [fmt(random.choice(L["openers"]))]
     body_beats = max(2, min(8, round(words / 120)))
+    beat_cycle = _cycle(L["beats"])
     for _ in range(body_beats):
-        paras.append(fmt(random.choice(L["beats"])))
+        paras.append(fmt(next(beat_cycle)))
     paras.append(fmt(random.choice(L["closers"])))
 
     header = (f"[{persona_name} | {genre.replace('_',' ')} | "
